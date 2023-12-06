@@ -4,10 +4,10 @@
 /node_modules
 /.pnp
 .pnp.js
-.App-v1.js
-.App-v2.js
-.App-v3.js
-.index-v1.js
+App-v1.js
+App-v2.js
+App-v3.js
+index-v1.js
 
 # testing
 /coverage
