@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import StarRating from "./StarRating";
 import { useMovies } from "./useMovies";
 import { useLocalStorageState } from "./useLocalStorageState";
-import { useKey } from "./useKey";
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -15,7 +14,8 @@ export default function App() {
 
   const { movies, isLoading, error } = useMovies(query);
 
-  const [watched, setWatched] = useLocalStorageState([], "watchedm");
+  const [watched, setWatched] = useLocalStorageState([],"watchedm")
+
 
   function handleSelectMovie(id) {
     setSelectedId((selectedId) => (id === selectedId ? null : id));
@@ -33,6 +33,7 @@ export default function App() {
   function handleDeleteWatched(id) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
+
 
   return (
     <>
@@ -110,12 +111,21 @@ function NumResult({ movies }) {
 
 function Search({ query, onSetQuery }) {
   const inputEl = useRef(null);
+  useEffect(
+    function () {
+      function callback(e) {
+        if (document.activeElement === inputEl.current) return;
+        if (e.code === "Enter") {
+          inputEl.current.focus();
+          onSetQuery("");
+        }
+      }
+      document.addEventListener("keydown", callback);
 
-  useKey("Enter", function () {
-    if (document.activeElement === inputEl.current) return;
-    inputEl.current.focus();
-    onSetQuery("");
-  });
+      return () => document.addEventListener("keydown", callback);
+    },
+    [onSetQuery]
+  );
 
   return (
     <input
@@ -241,7 +251,20 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
     onCloseMovie();
   }
 
-  useKey("Escape", onCloseMovie);
+  useEffect(
+    function () {
+      const callback = (e) => {
+        if (e.code === "Escape") {
+          onCloseMovie();
+        }
+      };
+      document.addEventListener("keydown", callback);
+      return function () {
+        document.removeEventListener("keydown", callback);
+      };
+    },
+    [onCloseMovie]
+  );
 
   useEffect(
     function () {
